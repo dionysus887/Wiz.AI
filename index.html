@@ -1,0 +1,1067 @@
+<!DOCTYPE html>
+<html lang="en" class="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wiz.AI - Your Personal Self-Help AI Assistant</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            light: '#FF6B6B',
+                            DEFAULT: '#FF6B6B',
+                            dark: '#FF8585'
+                        },
+                        secondary: {
+                            light: '#6B66FF',
+                            DEFAULT: '#6B66FF',
+                            dark: '#8580FF'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Outfit', sans-serif;
+            scroll-behavior: smooth;
+        }
+        .gradient-bg {
+            background: linear-gradient(135deg, #FF6B6B, #6B66FF);
+        }
+        .dark .gradient-bg {
+            background: linear-gradient(135deg, #FF8585, #8580FF);
+        }
+        .gradient-text {
+            background: linear-gradient(135deg, #FF6B6B, #6B66FF);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        .dark .gradient-text {
+            background: linear-gradient(135deg, #FF8585, #8580FF);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        .chat-container {
+            border-radius: 24px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08);
+        }
+        .dark .chat-container {
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+        }
+        .blob {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(60px);
+            z-index: -1;
+            opacity: 0.4;
+        }
+        .dark .blob {
+            opacity: 0.2;
+        }
+        .blob-1 {
+            width: 300px;
+            height: 300px;
+            background: #FF6B6B;
+            top: 10%;
+            left: 5%;
+        }
+        .blob-2 {
+            width: 400px;
+            height: 400px;
+            background: #6B66FF;
+            bottom: 5%;
+            right: 5%;
+        }
+        .blob-3 {
+            width: 250px;
+            height: 250px;
+            background: #FFD166;
+            top: 40%;
+            right: 15%;
+        }
+        .card-hover {
+            transition: all 0.3s ease;
+        }
+        .card-hover:hover {
+            transform: translateY(-8px);
+        }
+        .nav-pill {
+            transition: all 0.3s ease;
+            border-radius: 100px;
+            padding: 8px 16px;
+        }
+        .nav-pill:hover, .nav-pill.active {
+            background: rgba(107, 102, 255, 0.1);
+            color: #6B66FF;
+        }
+        .dark .nav-pill:hover, .dark .nav-pill.active {
+            background: rgba(133, 128, 255, 0.2);
+            color: #8580FF;
+        }
+        .testimonial-card {
+            border-radius: 24px;
+            transition: all 0.3s ease;
+        }
+        .testimonial-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08);
+        }
+        .dark .testimonial-card:hover {
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+        }
+        .faq-toggle {
+            border-radius: 16px;
+            transition: all 0.3s ease;
+        }
+        .faq-content {
+            border-radius: 16px;
+        }
+        .quiz-option {
+            transition: all 0.2s ease;
+        }
+        .quiz-option:hover {
+            background-color: rgba(107, 102, 255, 0.1);
+        }
+        .dark .quiz-option:hover {
+            background-color: rgba(133, 128, 255, 0.2);
+        }
+        .quiz-option.selected {
+            background-color: rgba(107, 102, 255, 0.2);
+            border-color: #6B66FF;
+        }
+        .dark .quiz-option.selected {
+            background-color: rgba(133, 128, 255, 0.3);
+            border-color: #8580FF;
+        }
+        #sitespeak-widget {
+            min-height: 600px;
+            width: 100%;
+            border-radius: 1rem;
+            overflow: hidden;
+        }
+        .pulse-animation {
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        .bounce-animation {
+            animation: bounce 1s;
+        }
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+            40% { transform: translateY(-20px); }
+            60% { transform: translateY(-10px); }
+        }
+        .video-container {
+            position: relative;
+            padding-bottom: 56.25%; /* 16:9 aspect ratio */
+            height: 0;
+            overflow: hidden;
+            border-radius: 1rem;
+        }
+        .video-container iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: 0;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 dark:bg-gray-900 text-gray-800 dark:text-gray-200">
+    <!-- Blobs -->
+    <div class="blob blob-1"></div>
+    <div class="blob blob-2"></div>
+    <div class="blob blob-3"></div>
+
+    <!-- Navigation -->
+    <nav class="bg-white/80 dark:bg-gray-800/80 backdrop-blur-md sticky top-0 z-50 border-b border-gray-100 dark:border-gray-700">
+        <div class="container mx-auto px-6 py-4 flex justify-between items-center">
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 rounded-xl gradient-bg flex items-center justify-center">
+                    <span class="text-white font-bold text-xl">W</span>
+                </div>
+                <span class="text-2xl font-bold text-gray-800 dark:text-white">Wiz.AI</span>
+            </div>
+            <div class="hidden md:flex space-x-2">
+                <a href="#home" class="nav-pill active font-medium">Home</a>
+                <a href="#chatbot" class="nav-pill font-medium">Chat</a>
+                <a href="#quiz" class="nav-pill font-medium">Mood Quiz</a>
+                <a href="#testimonials" class="nav-pill font-medium">Reviews</a>
+                <a href="#faq" class="nav-pill font-medium">FAQ</a>
+            </div>
+            <div class="hidden md:flex items-center space-x-4">
+                <button id="theme-toggle" class="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700">
+                    <!-- Sun icon -->
+                    <svg id="light-icon" class="w-6 h-6 hidden dark:block text-yellow-300" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path>
+                    </svg>
+                    <!-- Moon icon -->
+                    <svg id="dark-icon" class="w-6 h-6 block dark:hidden text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path>
+                    </svg>
+                </button>
+                <button class="bg-black dark:bg-white text-white dark:text-black font-semibold py-2 px-6 rounded-full hover:bg-gray-800 dark:hover:bg-gray-100 transition duration-300 scroll-to-chatbot pulse-animation">Get Started</button>
+            </div>
+            <div class="md:hidden flex items-center space-x-4">
+                <button id="mobile-theme-toggle" class="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700">
+                    <!-- Sun icon -->
+                    <svg class="w-6 h-6 hidden dark:block text-yellow-300" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path>
+                    </svg>
+                    <!-- Moon icon -->
+                    <svg class="w-6 h-6 block dark:hidden text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path>
+                    </svg>
+                </button>
+                <button id="menu-toggle" class="text-gray-700 dark:text-gray-200 focus:outline-none">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                    </svg>
+                </button>
+            </div>
+        </div>
+        <!-- Mobile menu -->
+        <div id="mobile-menu" class="md:hidden hidden bg-white dark:bg-gray-800 pb-6 px-6">
+            <a href="#home" class="block py-3 text-gray-700 dark:text-gray-200 hover:text-indigo-600 dark:hover:text-indigo-400 font-medium">Home</a>
+            <a href="#chatbot" class="block py-3 text-gray-700 dark:text-gray-200 hover:text-indigo-600 dark:hover:text-indigo-400 font-medium">Chat</a>
+            <a href="#quiz" class="block py-3 text-gray-700 dark:text-gray-200 hover:text-indigo-600 dark:hover:text-indigo-400 font-medium">Mood Quiz</a>
+            <a href="#testimonials" class="block py-3 text-gray-700 dark:text-gray-200 hover:text-indigo-600 dark:hover:text-indigo-400 font-medium">Reviews</a>
+            <a href="#faq" class="block py-3 text-gray-700 dark:text-gray-200 hover:text-indigo-600 dark:hover:text-indigo-400 font-medium">FAQ</a>
+            <button class="mt-4 w-full bg-black dark:bg-white text-white dark:text-black font-semibold py-3 px-6 rounded-full hover:bg-gray-800 dark:hover:bg-gray-100 transition duration-300 scroll-to-chatbot pulse-animation">Get Started</button>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section id="home" class="py-20 md:py-28 relative overflow-hidden">
+        <div class="container mx-auto px-6 flex flex-col md:flex-row items-center">
+            <div class="md:w-1/2 mb-12 md:mb-0">
+                <div class="inline-block px-4 py-1 bg-indigo-100 dark:bg-indigo-900/30 rounded-full mb-6">
+                    <span class="text-indigo-600 dark:text-indigo-400 font-medium">✨ AI-Powered Self-Help</span>
+                </div>
+                <h1 class="text-5xl md:text-6xl font-bold mb-6 leading-tight text-gray-800 dark:text-white">Meet <span class="gradient-text">Wiz.AI</span>, Your Digital Wellness Buddy</h1>
+                <p class="text-xl mb-8 text-gray-600 dark:text-gray-300">Get personalized guidance, motivation, and support whenever you need it. Available 24/7 to help you become your best self.</p>
+                <div class="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4">
+                    <button class="gradient-bg text-white font-semibold py-4 px-8 rounded-full hover:opacity-90 transition duration-300 shadow-lg scroll-to-chatbot pulse-animation">Try Wiz.AI Free</button>
+                </div>
+            </div>
+            <div class="md:w-1/2 flex justify-center">
+                <div class="relative">
+                    <!-- Decorative elements -->
+                    <div class="absolute -top-10 -left-10 w-20 h-20 bg-yellow-200 dark:bg-yellow-700/30 rounded-full opacity-50"></div>
+                    <div class="absolute -bottom-8 -right-8 w-16 h-16 bg-indigo-200 dark:bg-indigo-700/30 rounded-full opacity-50"></div>
+                    
+                    <!-- Chat interface mockup -->
+                    <div class="bg-white dark:bg-gray-800 rounded-3xl shadow-2xl p-6 w-full max-w-md">
+                        <div class="flex items-center justify-between mb-6">
+                            <div class="flex items-center space-x-3">
+                                <div class="w-10 h-10 rounded-full gradient-bg flex items-center justify-center">
+                                    <span class="text-white font-bold text-xl">W</span>
+                                </div>
+                                <span class="font-bold text-gray-800 dark:text-white">Wiz.AI</span>
+                            </div>
+                            <div class="flex space-x-2">
+                                <div class="w-3 h-3 rounded-full bg-red-400"></div>
+                                <div class="w-3 h-3 rounded-full bg-yellow-400"></div>
+                                <div class="w-3 h-3 rounded-full bg-green-400"></div>
+                            </div>
+                        </div>
+                        <div class="space-y-4 mb-6">
+                            <div class="bg-gray-100 dark:bg-gray-700 p-3 rounded-2xl rounded-tl-none max-w-[80%]">
+                                <p class="text-gray-700 dark:text-gray-200">Hi there! I'm Wiz.AI. How can I help you today?</p>
+                            </div>
+                            <div class="bg-indigo-100 dark:bg-indigo-900/50 p-3 rounded-2xl rounded-tr-none max-w-[80%] ml-auto">
+                                <p class="text-indigo-700 dark:text-indigo-300">I've been feeling stressed about work lately.</p>
+                            </div>
+                            <div class="bg-gray-100 dark:bg-gray-700 p-3 rounded-2xl rounded-tl-none max-w-[80%]">
+                                <p class="text-gray-700 dark:text-gray-200">I understand how work stress can feel overwhelming. Let's work through some strategies together. What specific aspects of work are causing you the most stress?</p>
+                            </div>
+                        </div>
+                        <div class="flex space-x-2">
+                            <input type="text" placeholder="Type your message..." class="flex-1 border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-full px-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                            <button class="gradient-bg text-white p-3 rounded-full hover:opacity-90 transition duration-300">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="py-20 bg-white dark:bg-gray-800">
+        <div class="container mx-auto px-6">
+            <div class="text-center mb-16">
+                <div class="inline-block px-4 py-1 bg-indigo-100 dark:bg-indigo-900/30 rounded-full mb-4">
+                    <span class="text-indigo-600 dark:text-indigo-400 font-medium">🚀 Features</span>
+                </div>
+                <h2 class="text-4xl font-bold mb-4 text-gray-800 dark:text-white">How Wiz.AI Helps You</h2>
+                <p class="text-xl text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">Our AI is designed to support your personal growth journey with these powerful features</p>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div class="bg-gray-50 dark:bg-gray-700 p-8 rounded-3xl shadow-sm hover:shadow-xl transition duration-300 card-hover border border-gray-100 dark:border-gray-600">
+                    <div class="w-16 h-16 rounded-2xl gradient-bg flex items-center justify-center mb-6">
+                        <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                        </svg>
+                    </div>
+                    <h3 class="text-2xl font-bold mb-3 text-gray-800 dark:text-white">Personalized Guidance</h3>
+                    <p class="text-gray-600 dark:text-gray-300">Wiz.AI learns your goals, challenges, and preferences to provide tailored advice that works specifically for you.</p>
+                </div>
+                <div class="bg-gray-50 dark:bg-gray-700 p-8 rounded-3xl shadow-sm hover:shadow-xl transition duration-300 card-hover border border-gray-100 dark:border-gray-600">
+                    <div class="w-16 h-16 rounded-2xl gradient-bg flex items-center justify-center mb-6">
+                        <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                    </div>
+                    <h3 class="text-2xl font-bold mb-3 text-gray-800 dark:text-white">Available 24/7</h3>
+                    <p class="text-gray-600 dark:text-gray-300">Get support whenever you need it, day or night. Wiz.AI is always ready to listen and provide guidance.</p>
+                </div>
+                <div class="bg-gray-50 dark:bg-gray-700 p-8 rounded-3xl shadow-sm hover:shadow-xl transition duration-300 card-hover border border-gray-100 dark:border-gray-600">
+                    <div class="w-16 h-16 rounded-2xl gradient-bg flex items-center justify-center mb-6">
+                        <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
+                        </svg>
+                    </div>
+                    <h3 class="text-2xl font-bold mb-3 text-gray-800 dark:text-white">Evidence-Based</h3>
+                    <p class="text-gray-600 dark:text-gray-300">Our AI is trained on proven psychological methods and self-improvement strategies backed by research.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Chat Demo Section -->
+    <section id="chatbot" class="py-20 bg-gray-50 dark:bg-gray-900">
+        <div class="container mx-auto px-6">
+            <div class="text-center mb-16">
+                <div class="inline-block px-4 py-1 bg-indigo-100 dark:bg-indigo-900/30 rounded-full mb-4">
+                    <span class="text-indigo-600 dark:text-indigo-400 font-medium">💬 Try It Out</span>
+                </div>
+                <h2 class="text-4xl font-bold mb-4 text-gray-800 dark:text-white">Chat with Wiz.AI</h2>
+                <p class="text-xl text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">Get personalized guidance for your mental wellness journey</p>
+            </div>
+            
+            <div class="max-w-4xl mx-auto bg-white dark:bg-gray-800 p-6 rounded-3xl shadow-sm border border-gray-100 dark:border-gray-700">
+                <!-- Updated Chatbot Embed with the correct link -->
+                <iframe src="https://chatbot.sitespeak.ai/share/c084b78d-0631-4438-bd26-6f3c68ecaab9" id="sitespeak-widget" frameborder="0"></iframe>
+            </div>
+        </div>
+    </section>
+
+    <!-- Mood Quiz Section -->
+    <section id="quiz" class="py-20 bg-white dark:bg-gray-800">
+        <div class="container mx-auto px-6">
+            <div class="text-center mb-16">
+                <div class="inline-block px-4 py-1 bg-indigo-100 dark:bg-indigo-900/30 rounded-full mb-4">
+                    <span class="text-indigo-600 dark:text-indigo-400 font-medium">🧠 Self-Assessment</span>
+                </div>
+                <h2 class="text-4xl font-bold mb-4 text-gray-800 dark:text-white">Mood Assessment Quiz</h2>
+                <p class="text-xl text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">Take this quick quiz to understand your current emotional state</p>
+            </div>
+            
+            <div class="max-w-3xl mx-auto bg-white dark:bg-gray-800 p-8 rounded-3xl shadow-sm border border-gray-100 dark:border-gray-700">
+                <div id="quiz-container">
+                    <div id="quiz-question-1" class="quiz-question">
+                        <h3 class="text-2xl font-bold mb-6 text-gray-800 dark:text-white">1. How would you describe your energy level today?</h3>
+                        <div class="space-y-4">
+                            <div class="quiz-option p-4 border border-gray-200 dark:border-gray-600 rounded-xl cursor-pointer" data-value="1" data-question="1">
+                                <p class="text-gray-700 dark:text-gray-300">Very low - I feel exhausted</p>
+                            </div>
+                            <div class="quiz-option p-4 border border-gray-200 dark:border-gray-600 rounded-xl cursor-pointer" data-value="2" data-question="1">
+                                <p class="text-gray-700 dark:text-gray-300">Low - I'm feeling tired</p>
+                            </div>
+                            <div class="quiz-option p-4 border border-gray-200 dark:border-gray-600 rounded-xl cursor-pointer" data-value="3" data-question="1">
+                                <p class="text-gray-700 dark:text-gray-300">Moderate - I'm okay</p>
+                            </div>
+                            <div class="quiz-option p-4 border border-gray-200 dark:border-gray-600 rounded-xl cursor-pointer" data-value="4" data-question="1">
+                                <p class="text-gray-700 dark:text-gray-300">High - I feel energetic</p>
+                            </div>
+                            <div class="quiz-option p-4 border border-gray-200 dark:border-gray-600 rounded-xl cursor-pointer" data-value="5" data-question="1">
+                                <p class="text-gray-700 dark:text-gray-300">Very high - I'm bursting with energy</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div id="quiz-question-2" class="quiz-question hidden">
+                        <h3 class="text-2xl font-bold mb-6 text-gray-800 dark:text-white">2. How would you rate your stress level?</h3>
+                        <div class="space-y-4">
+                            <div class="quiz-option p-4 border border-gray-200 dark:border-gray-600 rounded-xl cursor-pointer" data-value="5" data-question="2">
+                                <p class="text-gray-700 dark:text-gray-300">No stress at all</p>
+                            </div>
+                            <div class="quiz-option p-4 border border-gray-200 dark:border-gray-600 rounded-xl cursor-pointer" data-value="4" data-question="2">
+                                <p class="text-gray-700 dark:text-gray-300">Mild stress</p>
+                            </div>
+                            <div class="quiz-option p-4 border border-gray-200 dark:border-gray-600 rounded-xl cursor-pointer" data-value="3" data-question="2">
+                                <p class="text-gray-700 dark:text-gray-300">Moderate stress</p>
+                            </div>
+                            <div class="quiz-option p-4 border border-gray-200 dark:border-gray-600 rounded-xl cursor-pointer" data-value="2" data-question="2">
+                                <p class="text-gray-700 dark:text-gray-300">High stress</p>
+                            </div>
+                            <div class="quiz-option p-4 border border-gray-200 dark:border-gray-600 rounded-xl cursor-pointer" data-value="1" data-question="2">
+                                <p class="text-gray-700 dark:text-gray-300">Extreme stress</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div id="quiz-question-3" class="quiz-question hidden">
+                        <h3 class="text-2xl font-bold mb-6 text-gray-800 dark:text-white">3. How well did you sleep last night?</h3>
+                        <div class="space-y-4">
+                            <div class="quiz-option p-4 border border-gray-200 dark:border-gray-600 rounded-xl cursor-pointer" data-value="1" data-question="3">
+                                <p class="text-gray-700 dark:text-gray-300">Very poorly - barely slept</p>
+                            </div>
+                            <div class="quiz-option p-4 border border-gray-200 dark:border-gray-600 rounded-xl cursor-pointer" data-value="2" data-question="3">
+                                <p class="text-gray-700 dark:text-gray-300">Poorly - woke up multiple times</p>
+                            </div>
+                            <div class="quiz-option p-4 border border-gray-200 dark:border-gray-600 rounded-xl cursor-pointer" data-value="3" data-question="3">
+                                <p class="text-gray-700 dark:text-gray-300">Average - slept okay</p>
+                            </div>
+                            <div class="quiz-option p-4 border border-gray-200 dark:border-gray-600 rounded-xl cursor-pointer" data-value="4" data-question="3">
+                                <p class="text-gray-700 dark:text-gray-300">Well - felt rested</p>
+                            </div>
+                            <div class="quiz-option p-4 border border-gray-200 dark:border-gray-600 rounded-xl cursor-pointer" data-value="5" data-question="3">
+                                <p class="text-gray-700 dark:text-gray-300">Very well - perfect sleep</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div id="quiz-question-4" class="quiz-question hidden">
+                        <h3 class="text-2xl font-bold mb-6 text-gray-800 dark:text-white">4. How would you describe your mood today?</h3>
+                        <div class="space-y-4">
+                            <div class="quiz-option p-4 border border-gray-200 dark:border-gray-600 rounded-xl cursor-pointer" data-value="1" data-question="4">
+                                <p class="text-gray-700 dark:text-gray-300">Very negative - feeling down</p>
+                            </div>
+                            <div class="quiz-option p-4 border border-gray-200 dark:border-gray-600 rounded-xl cursor-pointer" data-value="2" data-question="4">
+                                <p class="text-gray-700 dark:text-gray-300">Somewhat negative</p>
+                            </div>
+                            <div class="quiz-option p-4 border border-gray-200 dark:border-gray-600 rounded-xl cursor-pointer" data-value="3" data-question="4">
+                                <p class="text-gray-700 dark:text-gray-300">Neutral</p>
+                            </div>
+                            <div class="quiz-option p-4 border border-gray-200 dark:border-gray-600 rounded-xl cursor-pointer" data-value="4" data-question="4">
+                                <p class="text-gray-700 dark:text-gray-300">Somewhat positive</p>
+                            </div>
+                            <div class="quiz-option p-4 border border-gray-200 dark:border-gray-600 rounded-xl cursor-pointer" data-value="5" data-question="4">
+                                <p class="text-gray-700 dark:text-gray-300">Very positive - feeling great</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div id="quiz-question-5" class="quiz-question hidden">
+                        <h3 class="text-2xl font-bold mb-6 text-gray-800 dark:text-white">5. How focused have you been today?</h3>
+                        <div class="space-y-4">
+                            <div class="quiz-option p-4 border border-gray-200 dark:border-gray-600 rounded-xl cursor-pointer" data-value="1" data-question="5">
+                                <p class="text-gray-700 dark:text-gray-300">Not at all - very distracted</p>
+                            </div>
+                            <div class="quiz-option p-4 border border-gray-200 dark:border-gray-600 rounded-xl cursor-pointer" data-value="2" data-question="5">
+                                <p class="text-gray-700 dark:text-gray-300">Slightly focused</p>
+                            </div>
+                            <div class="quiz-option p-4 border border-gray-200 dark:border-gray-600 rounded-xl cursor-pointer" data-value="3" data-question="5">
+                                <p class="text-gray-700 dark:text-gray-300">Moderately focused</p>
+                            </div>
+                            <div class="quiz-option p-4 border border-gray-200 dark:border-gray-600 rounded-xl cursor-pointer" data-value="4" data-question="5">
+                                <p class="text-gray-700 dark:text-gray-300">Very focused</p>
+                            </div>
+                            <div class="quiz-option p-4 border border-gray-200 dark:border-gray-600 rounded-xl cursor-pointer" data-value="5" data-question="5">
+                                <p class="text-gray-700 dark:text-gray-300">Extremely focused - in the zone</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div id="quiz-results" class="hidden">
+                        <div class="text-center">
+                            <div class="w-24 h-24 rounded-full gradient-bg mx-auto mb-6 flex items-center justify-center">
+                                <svg class="w-12 h-12 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                </svg>
+                            </div>
+                            <h3 class="text-2xl font-bold mb-4 text-gray-800 dark:text-white">Your Mood Assessment</h3>
+                            <div id="result-score" class="text-5xl font-bold mb-6 gradient-text">85%</div>
+                            <p id="result-description" class="text-xl text-gray-600 dark:text-gray-300 mb-8">You're doing well! Your responses indicate a generally positive mood with moderate energy levels.</p>
+                            <div id="result-recommendations" class="bg-indigo-50 dark:bg-indigo-900/20 p-6 rounded-xl text-left mb-8">
+                                <h4 class="font-bold text-lg mb-3 text-gray-800 dark:text-white">Recommendations:</h4>
+                                <ul class="space-y-2 text-gray-700 dark:text-gray-300">
+                                    <li class="flex items-start">
+                                        <svg class="w-5 h-5 text-indigo-500 mr-2 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                                        </svg>
+                                        <span>Try a 10-minute meditation session to maintain your positive energy</span>
+                                    </li>
+                                    <li class="flex items-start">
+                                        <svg class="w-5 h-5 text-indigo-500 mr-2 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                                        </svg>
+                                        <span>Consider a short walk outside to boost your energy levels</span>
+                                    </li>
+                                    <li class="flex items-start">
+                                        <svg class="w-5 h-5 text-indigo-500 mr-2 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                                        </svg>
+                                        <span>Practice gratitude by noting three things you're thankful for today</span>
+                                    </li>
+                                </ul>
+                            </div>
+                            <button id="retake-quiz" class="gradient-bg text-white font-semibold py-3 px-8 rounded-full hover:opacity-90 transition duration-300">Retake Quiz</button>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-8 flex justify-between" id="quiz-navigation">
+                        <button id="prev-question" class="py-3 px-6 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 font-medium rounded-xl hover:bg-gray-300 dark:hover:bg-gray-600 transition hidden">Previous</button>
+                        <div class="flex-1"></div>
+                        <button id="next-question" class="py-3 px-6 bg-indigo-500 text-white font-medium rounded-xl hover:bg-indigo-600 transition">Next</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Testimonials Section -->
+    <section id="testimonials" class="py-20 bg-gray-50 dark:bg-gray-900">
+        <div class="container mx-auto px-6">
+            <div class="text-center mb-16">
+                <div class="inline-block px-4 py-1 bg-indigo-100 dark:bg-indigo-900/30 rounded-full mb-4">
+                    <span class="text-indigo-600 dark:text-indigo-400 font-medium">⭐ Testimonials</span>
+                </div>
+                <h2 class="text-4xl font-bold mb-4 text-gray-800 dark:text-white">What Our Users Say</h2>
+                <p class="text-xl text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">Real stories from people who've transformed their lives with Wiz.AI</p>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div class="testimonial-card bg-white dark:bg-gray-800 p-8 border border-gray-100 dark:border-gray-600">
+                    <div class="flex items-center mb-6">
+                        <div class="w-14 h-14 rounded-full bg-pink-100 dark:bg-pink-900/30 flex items-center justify-center mr-4">
+                            <span class="text-pink-600 dark:text-pink-400 font-semibold text-xl">JD</span>
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-lg text-gray-800 dark:text-white">James Davis</h4>
+                            <p class="text-gray-500 dark:text-gray-400">Marketing Executive</p>
+                        </div>
+                    </div>
+                    <div class="mb-6">
+                        <div class="flex text-yellow-400">
+                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
+                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
+                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
+                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
+                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
+                        </div>
+                    </div>
+                    <p class="text-gray-600 dark:text-gray-300">"Wiz.AI helped me overcome my procrastination habits. The personalized strategies it suggested were exactly what I needed. I'm now more productive than ever!"</p>
+                </div>
+                <div class="testimonial-card bg-white dark:bg-gray-800 p-8 border border-gray-100 dark:border-gray-600">
+                    <div class="flex items-center mb-6">
+                        <div class="w-14 h-14 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center mr-4">
+                            <span class="text-blue-600 dark:text-blue-400 font-semibold text-xl">SL</span>
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-lg text-gray-800 dark:text-white">Sarah Lee</h4>
+                            <p class="text-gray-500 dark:text-gray-400">Graphic Designer</p>
+                        </div>
+                    </div>
+                    <div class="mb-6">
+                        <div class="flex text-yellow-400">
+                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
+                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
+                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
+                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
+                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
+                        </div>
+                    </div>
+                    <p class="text-gray-600 dark:text-gray-300">"Having Wiz.AI is like having a therapist in my pocket. It's helped me manage my anxiety and develop healthier thought patterns. The daily check-ins keep me accountable."</p>
+                </div>
+                <div class="testimonial-card bg-white dark:bg-gray-800 p-8 border border-gray-100 dark:border-gray-600">
+                    <div class="flex items-center mb-6">
+                        <div class="w-14 h-14 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center mr-4">
+                            <span class="text-green-600 dark:text-green-400 font-semibold text-xl">MT</span>
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-lg text-gray-800 dark:text-white">Michael Torres</h4>
+                            <p class="text-gray-500 dark:text-gray-400">Software Engineer</p>
+                        </div>
+                    </div>
+                    <div class="mb-6">
+                        <div class="flex text-yellow-400">
+                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
+                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
+                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
+                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
+                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
+                        </div>
+                    </div>
+                    <p class="text-gray-600 dark:text-gray-300">"I was skeptical at first, but Wiz.AI has been a game-changer for my work-life balance. The goal-setting framework it taught me has transformed how I approach my career and personal life."</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Video Section -->
+    <section id="video" class="py-20 bg-white dark:bg-gray-800">
+        <div class="container mx-auto px-6">
+            <div class="text-center mb-16">
+                <div class="inline-block px-4 py-1 bg-indigo-100 dark:bg-indigo-900/30 rounded-full mb-4">
+                    <span class="text-indigo-600 dark:text-indigo-400 font-medium">📹 Watch & Learn</span>
+                </div>
+                <h2 class="text-4xl font-bold mb-4 text-gray-800 dark:text-white">See Wiz.AI in Action</h2>
+                <p class="text-xl text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">Watch how our AI can transform your daily routine</p>
+            </div>
+            
+            <div class="max-w-4xl mx-auto bg-white dark:bg-gray-800 p-8 rounded-3xl shadow-sm border border-gray-100 dark:border-gray-700">
+                <!-- Updated with YouTube embed -->
+                <div class="video-container mb-6">
+                    <iframe src="https://www.youtube.com/embed/E7MMfuDt-mU" title="Wiz.AI Demo Video" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                </div>
+                <div>
+                    <h3 class="font-bold text-xl text-gray-800 dark:text-white mb-3">How Wiz.AI Transforms Your Mental Wellness</h3>
+                    <p class="text-gray-600 dark:text-gray-300">This video demonstrates how Wiz.AI can help you develop better habits, manage stress, and achieve your personal growth goals through daily interactions and personalized guidance.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FAQ Section -->
+    <section id="faq" class="py-20 bg-gray-50 dark:bg-gray-900">
+        <div class="container mx-auto px-6">
+            <div class="text-center mb-16">
+                <div class="inline-block px-4 py-1 bg-indigo-100 dark:bg-indigo-900/30 rounded-full mb-4">
+                    <span class="text-indigo-600 dark:text-indigo-400 font-medium">❓ FAQ</span>
+                </div>
+                <h2 class="text-4xl font-bold mb-4 text-gray-800 dark:text-white">Frequently Asked Questions</h2>
+                <p class="text-xl text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">Everything you need to know about Wiz.AI</p>
+            </div>
+            
+            <div class="max-w-3xl mx-auto">
+                <div class="mb-6">
+                    <button class="faq-toggle w-full flex justify-between items-center bg-white dark:bg-gray-800 p-6 rounded-2xl hover:bg-gray-100 dark:hover:bg-gray-700 transition duration-300 border border-gray-100 dark:border-gray-600">
+                        <span class="font-bold text-lg text-gray-800 dark:text-white">What is Wiz.AI?</span>
+                        <svg class="w-6 h-6 text-gray-600 dark:text-gray-300 transform transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                        </svg>
+                    </button>
+                    <div class="faq-content hidden mt-3 p-6 bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-600">
+                        <p class="text-gray-600 dark:text-gray-300">Wiz.AI is an advanced self-help AI chatbot designed to provide personalized guidance, motivation, and support for your personal development journey. It uses evidence-based techniques to help you achieve your goals and improve your well-being.</p>
+                    </div>
+                </div>
+                <div class="mb-6">
+                    <button class="faq-toggle w-full flex justify-between items-center bg-white dark:bg-gray-800 p-6 rounded-2xl hover:bg-gray-100 dark:hover:bg-gray-700 transition duration-300 border border-gray-100 dark:border-gray-600">
+                        <span class="font-bold text-lg text-gray-800 dark:text-white">How does Wiz.AI work?</span>
+                        <svg class="w-6 h-6 text-gray-600 dark:text-gray-300 transform transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                        </svg>
+                    </button>
+                    <div class="faq-content hidden mt-3 p-6 bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-600">
+                        <p class="text-gray-600 dark:text-gray-300">Wiz.AI uses advanced natural language processing to understand your goals, challenges, and preferences. It then provides personalized advice, exercises, and strategies based on proven psychological methods. The more you interact with Wiz.AI, the better it gets at tailoring its guidance to your specific needs.</p>
+                    </div>
+                </div>
+                <div class="mb-6">
+                    <button class="faq-toggle w-full flex justify-between items-center bg-white dark:bg-gray-800 p-6 rounded-2xl hover:bg-gray-100 dark:hover:bg-gray-700 transition duration-300 border border-gray-100 dark:border-gray-600">
+                        <span class="font-bold text-lg text-gray-800 dark:text-white">Is my data private and secure?</span>
+                        <svg class="w-6 h-6 text-gray-600 dark:text-gray-300 transform transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                        </svg>
+                    </button>
+                    <div class="faq-content hidden mt-3 p-6 bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-600">
+                        <p class="text-gray-600 dark:text-gray-300">Yes, your privacy is our top priority. All conversations with Wiz.AI are encrypted and confidential. We do not share your personal data with third parties, and you can delete your data at any time.</p>
+                    </div>
+                </div>
+                <div class="mb-6">
+                    <button class="faq-toggle w-full flex justify-between items-center bg-white dark:bg-gray-800 p-6 rounded-2xl hover:bg-gray-100 dark:hover:bg-gray-700 transition duration-300 border border-gray-100 dark:border-gray-600">
+                        <span class="font-bold text-lg text-gray-800 dark:text-white">Can Wiz.AI replace therapy?</span>
+                        <svg class="w-6 h-6 text-gray-600 dark:text-gray-300 transform transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                        </svg>
+                    </button>
+                    <div class="faq-content hidden mt-3 p-6 bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-600">
+                        <p class="text-gray-600 dark:text-gray-300">No, Wiz.AI is not a replacement for professional therapy or medical advice. While it can provide valuable support and guidance for everyday challenges, it's designed to complement, not replace, professional mental health services. If you're experiencing serious mental health issues, please consult with a qualified healthcare provider.</p>
+                    </div>
+                </div>
+                <div class="mb-6">
+                    <button class="faq-toggle w-full flex justify-between items-center bg-white dark:bg-gray-800 p-6 rounded-2xl hover:bg-gray-100 dark:hover:bg-gray-700 transition duration-300 border border-gray-100 dark:border-gray-600">
+                        <span class="font-bold text-lg text-gray-800 dark:text-white">Is Wiz.AI free to use?</span>
+                        <svg class="w-6 h-6 text-gray-600 dark:text-gray-300 transform transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                        </svg>
+                    </button>
+                    <div class="faq-content hidden mt-3 p-6 bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-600">
+                        <p class="text-gray-600 dark:text-gray-300">Yes! Wiz.AI is completely free to use. We believe that mental wellness support should be accessible to everyone.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-gray-900 text-white py-16">
+        <div class="container mx-auto px-6">
+            <div class="flex flex-col md:flex-row justify-between items-center">
+                <div class="flex items-center space-x-3 mb-6 md:mb-0">
+                    <div class="w-10 h-10 rounded-xl gradient-bg flex items-center justify-center">
+                        <span class="text-white font-bold text-xl">W</span>
+                    </div>
+                    <span class="text-2xl font-bold">Wiz.AI</span>
+                </div>
+            </div>
+            <div class="mt-8 pt-8 flex justify-center">
+                <p class="text-gray-400">Wiz.AI - Your AI Wellness Companion</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Theme toggle
+        function setTheme(isDark) {
+            if (isDark) {
+                document.documentElement.classList.add('dark');
+                localStorage.theme = 'dark';
+            } else {
+                document.documentElement.classList.remove('dark');
+                localStorage.theme = 'light';
+            }
+        }
+        
+        // Check for saved theme preference or use system preference
+        if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            setTheme(true);
+        } else {
+            setTheme(false);
+        }
+        
+        // Theme toggle buttons
+        document.getElementById('theme-toggle').addEventListener('click', function() {
+            const isDark = document.documentElement.classList.contains('dark');
+            setTheme(!isDark);
+        });
+        
+        document.getElementById('mobile-theme-toggle').addEventListener('click', function() {
+            const isDark = document.documentElement.classList.contains('dark');
+            setTheme(!isDark);
+        });
+
+        // Mobile menu toggle
+        document.getElementById('menu-toggle').addEventListener('click', function() {
+            const mobileMenu = document.getElementById('mobile-menu');
+            mobileMenu.classList.toggle('hidden');
+        });
+
+        // FAQ toggles
+        document.querySelectorAll('.faq-toggle').forEach(toggle => {
+            toggle.addEventListener('click', function() {
+                const content = this.nextElementSibling;
+                const arrow = this.querySelector('svg');
+                
+                content.classList.toggle('hidden');
+                arrow.classList.toggle('rotate-180');
+                
+                // Close other FAQs
+                document.querySelectorAll('.faq-content').forEach(item => {
+                    if (item !== content && !item.classList.contains('hidden')) {
+                        item.classList.add('hidden');
+                        item.previousElementSibling.querySelector('svg').classList.remove('rotate-180');
+                    }
+                });
+            });
+        });
+
+        // Smooth scrolling for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function(e) {
+                e.preventDefault();
+                
+                const targetId = this.getAttribute('href');
+                const targetElement = document.querySelector(targetId);
+                
+                if (targetElement) {
+                    window.scrollTo({
+                        top: targetElement.offsetTop - 80,
+                        behavior: 'smooth'
+                    });
+                    
+                    // Update active nav link
+                    document.querySelectorAll('.nav-pill').forEach(link => {
+                        link.classList.remove('active');
+                    });
+                    this.classList.add('active');
+                    
+                    // Close mobile menu if open
+                    document.getElementById('mobile-menu').classList.add('hidden');
+                }
+            });
+        });
+
+        // Scroll to chatbot buttons
+        document.querySelectorAll('.scroll-to-chatbot').forEach(button => {
+            button.addEventListener('click', function() {
+                const chatbotSection = document.querySelector('#chatbot');
+                if (chatbotSection) {
+                    button.classList.add('bounce-animation');
+                    setTimeout(() => {
+                        window.scrollTo({
+                            top: chatbotSection.offsetTop - 80,
+                            behavior: 'smooth'
+                        });
+                    }, 300);
+                    
+                    // Remove animation class after animation completes
+                    setTimeout(() => {
+                        button.classList.remove('bounce-animation');
+                    }, 1000);
+                }
+            });
+        });
+
+        // Update active nav link on scroll
+        window.addEventListener('scroll', function() {
+            const sections = document.querySelectorAll('section');
+            const navLinks = document.querySelectorAll('.nav-pill');
+            
+            let current = '';
+            
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop - 100;
+                const sectionHeight = section.clientHeight;
+                
+                if (pageYOffset >= sectionTop && pageYOffset < sectionTop + sectionHeight) {
+                    current = '#' + section.getAttribute('id');
+                }
+            });
+            
+            navLinks.forEach(link => {
+                link.classList.remove('active');
+                if (link.getAttribute('href') === current) {
+                    link.classList.add('active');
+                }
+            });
+        });
+
+        // Quiz functionality
+        let currentQuestion = 1;
+        const totalQuestions = 5;
+        let quizAnswers = {};
+        
+        // Handle quiz option selection
+        document.querySelectorAll('.quiz-option').forEach(option => {
+            option.addEventListener('click', function() {
+                const questionNumber = this.dataset.question;
+                const value = this.dataset.value;
+                
+                // Remove selected class from all options in this question
+                document.querySelectorAll(`.quiz-option[data-question="${questionNumber}"]`).forEach(opt => {
+                    opt.classList.remove('selected');
+                });
+                
+                // Add selected class to clicked option
+                this.classList.add('selected');
+                
+                // Store answer
+                quizAnswers[questionNumber] = parseInt(value);
+            });
+        });
+        
+        // Handle next button
+        document.getElementById('next-question').addEventListener('click', function() {
+            // Check if an option is selected for current question
+            if (!quizAnswers[currentQuestion]) {
+                alert('Please select an option before proceeding.');
+                return;
+            }
+            
+            // Hide current question
+            document.getElementById(`quiz-question-${currentQuestion}`).classList.add('hidden');
+            
+            // If last question, show results
+            if (currentQuestion === totalQuestions) {
+                showQuizResults();
+                this.classList.add('hidden');
+                document.getElementById('prev-question').classList.add('hidden');
+                return;
+            }
+            
+            // Show next question
+            currentQuestion++;
+            document.getElementById(`quiz-question-${currentQuestion}`).classList.remove('hidden');
+            
+            // Show previous button if not on first question
+            if (currentQuestion > 1) {
+                document.getElementById('prev-question').classList.remove('hidden');
+            }
+            
+            // Change next button text on last question
+            if (currentQuestion === totalQuestions) {
+                this.textContent = 'See Results';
+            }
+        });
+        
+        // Handle previous button
+        document.getElementById('prev-question').addEventListener('click', function() {
+            // Hide current question
+            document.getElementById(`quiz-question-${currentQuestion}`).classList.add('hidden');
+            
+            // Show previous question
+            currentQuestion--;
+            document.getElementById(`quiz-question-${currentQuestion}`).classList.remove('hidden');
+            
+            // Hide previous button if on first question
+            if (currentQuestion === 1) {
+                this.classList.add('hidden');
+            }
+            
+            // Change next button text if not on last question
+            if (currentQuestion < totalQuestions) {
+                document.getElementById('next-question').textContent = 'Next';
+            }
+        });
+        
+        // Handle retake quiz button
+        document.getElementById('retake-quiz').addEventListener('click', function() {
+            // Reset quiz
+            document.getElementById('quiz-results').classList.add('hidden');
+            document.getElementById('quiz-question-1').classList.remove('hidden');
+            document.getElementById('quiz-navigation').classList.remove('hidden');
+            document.getElementById('next-question').classList.remove('hidden');
+            document.getElementById('next-question').textContent = 'Next';
+            document.getElementById('prev-question').classList.add('hidden');
+            
+            // Reset selected options
+            document.querySelectorAll('.quiz-option').forEach(opt => {
+                opt.classList.remove('selected');
+            });
+            
+            // Reset variables
+            currentQuestion = 1;
+            quizAnswers = {};
+        });
+        
+        // Show quiz results
+        function showQuizResults() {
+            // Calculate score
+            let totalScore = 0;
+            for (const question in quizAnswers) {
+                totalScore += quizAnswers[question];
+            }
+            
+            const percentScore = Math.round((totalScore / (totalQuestions * 5)) * 100);
+            
+            // Update result elements
+            document.getElementById('result-score').textContent = `${percentScore}%`;
+            
+            // Set description based on score
+            const resultDescription = document.getElementById('result-description');
+            const resultRecommendations = document.getElementById('result-recommendations').querySelector('ul');
+            
+            if (percentScore >= 80) {
+                resultDescription.textContent = "You're doing great! Your responses indicate a very positive mood with high energy levels.";
+                resultRecommendations.innerHTML = `
+                    <li class="flex items-start">
+                        <svg class="w-5 h-5 text-indigo-500 dark:text-indigo-400 mr-2 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                        </svg>
+                        <span>Continue your current wellness practices</span>
+                    </li>
+                    <li class="flex items-start">
+                        <svg class="w-5 h-5 text-indigo-500 dark:text-indigo-400 mr-2 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                        </svg>
+                        <span>Share your positive energy with others</span>
+                    </li>
+                    <li class="flex items-start">
+                        <svg class="w-5 h-5 text-indigo-500 dark:text-indigo-400 mr-2 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                        </svg>
+                        <span>Set new goals to maintain your momentum</span>
+                    </li>
+                `;
+            } else if (percentScore >= 60) {
+                resultDescription.textContent = "You're doing well! Your responses indicate a generally positive mood with moderate energy levels.";
+                resultRecommendations.innerHTML = `
+                    <li class="flex items-start">
+                        <svg class="w-5 h-5 text-indigo-500 dark:text-indigo-400 mr-2 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                        </svg>
+                        <span>Try a 10-minute meditation session to maintain your positive energy</span>
+                    </li>
+                    <li class="flex items-start">
+                        <svg class="w-5 h-5 text-indigo-500 dark:text-indigo-400 mr-2 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                        </svg>
+                        <span>Consider a short walk outside to boost your energy levels</span>
+                    </li>
+                    <li class="flex items-start">
+                        <svg class="w-5 h-5 text-indigo-500 dark:text-indigo-400 mr-2 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                        </svg>
+                        <span>Practice gratitude by noting three things you're thankful for today</span>
+                    </li>
+                `;
+            } else if (percentScore >= 40) {
+                resultDescription.textContent = "You're doing okay, but there's room for improvement. Your responses indicate a neutral mood with some areas that could use attention.";
+                resultRecommendations.innerHTML = `
+                    <li class="flex items-start">
+                        <svg class="w-5 h-5 text-indigo-500 dark:text-indigo-400 mr-2 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                        </svg>
+                        <span>Try to get more quality sleep by establishing a bedtime routine</span>
+                    </li>
+                    <li class="flex items-start">
+                        <svg class="w-5 h-5 text-indigo-500 dark:text-indigo-400 mr-2 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                        </svg>
+                        <span>Practice mindfulness or meditation to reduce stress</span>
+                    </li>
+                    <li class="flex items-start">
+                        <svg class="w-5 h-5 text-indigo-500 dark:text-indigo-400 mr-2 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                        </svg>
+                        <span>Consider light exercise to boost your mood and energy</span>
+                    </li>
+                `;
+            } else {
+                resultDescription.textContent = "It looks like you're going through a challenging time. Your responses indicate you might benefit from some self-care and support.";
+                resultRecommendations.innerHTML = `
+                    <li class="flex items-start">
+                        <svg class="w-5 h-5 text-indigo-500 dark:text-indigo-400 mr-2 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                        </svg>
+                        <span>Prioritize self-care activities that you enjoy</span>
+                    </li>
+                    <li class="flex items-start">
+                        <svg class="w-5 h-5 text-indigo-500 dark:text-indigo-400 mr-2 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                        </svg>
+                        <span>Reach out to a friend or family member for support</span>
+                    </li>
+                    <li class="flex items-start">
+                        <svg class="w-5 h-5 text-indigo-500 dark:text-indigo-400 mr-2 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                        </svg>
+                        <span>Consider speaking with a mental health professional</span>
+                    </li>
+                    <li class="flex items-start">
+                        <svg class="w-5 h-5 text-indigo-500 dark:text-indigo-400 mr-2 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                        </svg>
+                        <span>Focus on small, achievable goals each day</span>
+                    </li>
+                `;
+            }
+            
+            // Show results
+            document.getElementById('quiz-results').classList.remove('hidden');
+            document.getElementById('quiz-navigation').classList.add('hidden');
+        }
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9664923ea50c59ed',t:'MTc1MzcwNzc1MC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
